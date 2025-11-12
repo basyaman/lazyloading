@@ -41,6 +41,7 @@ fetch(`https://picsum.photos/v2/list?page=${page}&limit=${perPage}`)
         });
         loadedTotal += data.length;
 
+//observe the sentinel for infinite scroll  
         sentinelObserver.observe(sentinel);
     });
 
