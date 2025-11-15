@@ -60,27 +60,37 @@ const sentinelObserver = new IntersectionObserver(entries => {
 
 
     //fetch next batch of images
-    fetch(`https://picsum.photos/v2/list?page=${page}&limit=${perPage}`)
-        .then(response => response.json())
-    .then(data => {
+   fetch(`https://picsum.photos/v2/list?page=${page}&limit=${perPage}`)
+      .then(response => response.json())
+      .then(data => {
         data.forEach(imageData => {
-            const img = document.createElement('img');
-            img.setAttribute('data-src', imageData.download_url);
-            img.classList.add("lazy-img");
-            img.style.height = "200px";
-            img.style.width = "300px";
-            img.style.margin = "10px";
-            container.appendChild(img);
-            observer.observe(img);
+          const img = document.createElement('img');
+          img.setAttribute('data-src', imageData.download_url);
+          img.classList.add("lazy-img");
+          img.style.height = "200px";
+          img.style.width = "300px";
+          img.style.margin = "10px";
+
+          container.appendChild(img);
+          observer.observe(img);   // image IntersectionObserver
         });
-        
-    loadedTotal += data.length;
-    isLoading = false;
-    });
-    });
+
+        //  Increase total loaded count
+        loadedTotal += data.length;
+      })
+      .finally(() => {
+        //  Unlock loading so next batch can trigger
+        isLoading = false;
+
+        //  stop observing if we hit the max
+        if (loadedTotal >= MAX_IMAGES) {
+          sentinelObserver.unobserve(sentinel);
+        }
+      });
+  });
 }, {
-    root : null,
-    rootMargin : '100px 0px',
-    threshold : 0.01
+  root: null,
+  rootMargin: '100px 0px',
+  threshold: 0.01
 });
   
